@@ -1,4 +1,4 @@
-FROM hseeberger/scala-sbt
+FROM hseeberger/scala-sbt:8u222_1.3.7_2.12.10
 
 # Download and install wkhtmltopdf
 RUN apt-get update \
