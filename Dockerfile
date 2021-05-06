@@ -1,13 +1,13 @@
-FROM hseeberger/scala-sbt:8u222_1.3.7_2.12.10
+FROM hseeberger/scala-sbt:8u265_1.4.7_2.12.12
 
 # Download and install wkhtmltopdf
 RUN apt-get update \
     && apt-get install -y \
-        curl \
-        libxrender1 \
-        libfontconfig \
-        libxtst6 \
-        xz-utils \
+    curl \
+    libxrender1 \
+    libfontconfig \
+    libxtst6 \
+    xz-utils \
     && apt-get clean
 
 RUN curl "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz" -L -o "wkhtmltopdf.tar.xz"
