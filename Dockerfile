@@ -1,16 +1,49 @@
-FROM hseeberger/scala-sbt:8u265_1.4.7_2.12.12
+FROM eclipse-temurin:17.0.6_10-jre-jammy@sha256:f2e5fa11c16cd41da0433bab513790b0c9f95071675ad1a8e853aaaa3e0db6af
+
+ARG SCALA_VERSION=2.12.17
+ARG SBT_VERSION=1.3.13
+ENV SCALA_HOME=/usr/share/scala
+
+RUN \
+    cd "/tmp" && \
+    wget "https://downloads.typesafe.com/scala/${SCALA_VERSION}/scala-${SCALA_VERSION}.tgz" && \
+    tar xzf "scala-${SCALA_VERSION}.tgz" && \
+    mkdir "${SCALA_HOME}" && \
+    rm "/tmp/scala-${SCALA_VERSION}/bin/"*.bat && \
+    mv "/tmp/scala-${SCALA_VERSION}/bin" "/tmp/scala-${SCALA_VERSION}/lib" "${SCALA_HOME}" && \
+    ln -s "${SCALA_HOME}/bin/"* "/usr/bin/" && \
+    rm -rf "/tmp/"*
+
+RUN \
+    cd "/tmp" && \
+    update-ca-certificates && \
+    scala -version && \
+    scalac -version && \
+    curl -fsL https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz | tar xfz - -C /usr/local && \
+    $(mv /usr/local/sbt-launcher-packaging-$SBT_VERSION /usr/local/sbt || true) && \
+    ln -s /usr/local/sbt/bin/* /usr/local/bin/ && \
+    rm -rf "/tmp/"*
+
+RUN \
+    sbt -Dsbt.rootdir=true -batch sbtVersion && \
+    rm -rf project target
+
+WORKDIR /root
 
 # Download and install wkhtmltopdf
 RUN apt-get update \
     && apt-get install -y \
     curl \
+    xfonts-base \
+    xfonts-75dpi \
+    fontconfig \
+    libxext6 \
+    libx11-6 \
     libxrender1 \
-    libfontconfig \
-    libxtst6 \
-    xz-utils \
+    libjpeg-turbo8 \
     && apt-get clean
 
-RUN curl "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz" -L -o "wkhtmltopdf.tar.xz"
-RUN tar Jxvf wkhtmltopdf.tar.xz
-RUN mv wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
-RUN rm -rf wkhtmlto*
+RUN curl "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb" -L -o "wkhtmltopdf.deb" \
+    && dpkg -i ./wkhtmltopdf.deb \
+    && apt-get install -f \
+    && rm -rf wkhtmlto*
