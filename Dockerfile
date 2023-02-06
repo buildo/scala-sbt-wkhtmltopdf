@@ -40,10 +40,10 @@ RUN apt-get update \
     libxext6 \
     libx11-6 \
     libxrender1 \
-    libjpeg-turbo8 \
-    && apt-get clean
+    libjpeg-turbo8
 
 RUN curl "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb" -L -o "wkhtmltopdf.deb" \
     && dpkg -i ./wkhtmltopdf.deb \
     && apt-get install -f \
+    && apt-get clean \
     && rm -rf wkhtmlto*
